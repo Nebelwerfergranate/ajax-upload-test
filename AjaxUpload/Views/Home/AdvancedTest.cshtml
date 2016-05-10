@@ -1,0 +1,113 @@
+﻿
+@{
+    ViewBag.Title = "AdvancedTest";
+}
+
+@section styles{
+    <link rel="stylesheet" href="~/Content/advancedTest.css" />
+}
+
+<h2>ViewBag.Title</h2>
+
+<div>
+    <input type="file" name="upload" id="uploadFile" multiple /><br />
+    <button id="submit">Download</button>
+    <br />
+    <br />
+    <div id="dropbox"></div>
+    <progress id="progress" max="100" value="0">
+        loading...
+    </progress>
+    <div id="preview"></div>
+</div>
+
+@section scripts{
+    <script>
+        var dropbox = document.getElementById("dropbox");
+        var preview = document.getElementById("preview");
+        var progress = document.getElementById("progress");
+        var button = document.getElementById("submit");
+
+        var allFiles = null;
+
+        dropbox = document.getElementById("dropbox");
+        dropbox.addEventListener("dragenter", dragenter, false);
+        dropbox.addEventListener("dragover", dragover, false);
+        dropbox.addEventListener("drop", drop, false);
+
+        button.onclick = addEventListener("click", click, false);
+
+        function dragenter(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        function dragover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            var dt = e.dataTransfer;
+            var files = dt.files;
+
+            handleFiles(files);
+            allFiles = files;
+            //send(files);
+        }
+
+        function click(e) {
+            send(allFiles);
+        }
+
+        function handleFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var imageType = /^image\//;
+
+                if (!imageType.test(file.type)) {
+                    continue;
+                }
+
+                var img = document.createElement("img");
+                img.classList.add("obj");
+                img.file = file;
+                preview.appendChild(img); // Assuming that "preview" is the div output where the content will be displayed.
+
+                var reader = new FileReader();
+                reader.onload = (function (aImg) { return function (e) { aImg.src = e.target.result; }; })(img);
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function send(files) {
+            if (files.length > 0) {
+                if (window.FormData !== undefined) {
+                    var data = new FormData();
+
+                    for (var x = 0; x < files.length; x++) {
+                        data.append("file" + x, files[x]);
+                    }
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", '@Url.Action("Upload", "Home")');
+                    xhr.send(data);
+
+                    xhr.upload.addEventListener("progress", function (e) {
+                        if (e.lengthComputable) {
+                            var percentage = Math.round((e.loaded * 100) / e.total);
+                            progress.value = percentage;
+                        }
+
+                    }, false);
+
+                } else {
+                    alert("Browser doesn't suppor HTML5 file loading!");
+                }
+            }
+        }
+    </script>
+}

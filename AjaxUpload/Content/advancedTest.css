@@ -1,0 +1,13 @@
+﻿body {
+}
+
+#dropbox {
+    height: 200px;
+    width: 200px;
+    background-color: grey;
+}
+
+img {
+    width: 100px;
+    height: 100px;
+}
