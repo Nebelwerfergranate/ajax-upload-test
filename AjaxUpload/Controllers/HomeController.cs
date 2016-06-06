@@ -13,45 +13,46 @@ namespace AjaxUpload.Controllers
     public class HomeController : Controller
     {
         #region Fields
-        private string imagesDirectoryPath;
-        private string thumbnailsDirectoryPath;
-        private UploadImageHandler uploadImageHandler;
+        private string imagesDirRelativePath = "Content\\Images";
+        private string thumbnailsDirRelativePath = "Content\\Images\\Thumbnails";
+        private string virtualPath;
+        private UploadImageManager uploadImageHandler;
+
+        static List<ApplicationImageInfo> db = new List<ApplicationImageInfo>();
+        //private
         #endregion
 
         #region Properties
-        private string ImagesDirectoryPath
+        private string ImagesDirRelativePath
+        {
+            get { return imagesDirRelativePath; }
+        }
+
+        private string ThumbnailsDirRelativePath
+        {
+            get { return thumbnailsDirRelativePath; }
+        }
+
+        private string VirtualPath
         {
             get
             {
-                if (string.IsNullOrEmpty(imagesDirectoryPath))
+                if (string.IsNullOrEmpty(virtualPath))
                 {
-                    imagesDirectoryPath = Server.MapPath("~\\Content\\Images");
+                    virtualPath = Server.MapPath("~");
                 }
 
-                return imagesDirectoryPath;
+                return virtualPath;
             }
         }
 
-        private string ThumbnailsDirectoryPath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(thumbnailsDirectoryPath))
-                {
-                    thumbnailsDirectoryPath = Server.MapPath("~\\Content\\Images\\Thumbnails");
-                }
-
-                return thumbnailsDirectoryPath;
-            }
-        }
-
-        private UploadImageHandler UploadImageHandler
+        private UploadImageManager UploadImageHandler
         {
             get
             {
                 if (uploadImageHandler == null)
                 {
-                    uploadImageHandler = new UploadImageHandler(ImagesDirectoryPath, ThumbnailsDirectoryPath);
+                    uploadImageHandler = new UploadImageManager(VirtualPath, ImagesDirRelativePath, ThumbnailsDirRelativePath);
                 }
 
                 return uploadImageHandler;
@@ -63,22 +64,28 @@ namespace AjaxUpload.Controllers
         public ActionResult Index()
         {
             //return View();
-            return View("AdvancedTest");
+            return View("AdvancedTest", db);
         }
 
         [HttpPost]
         public ActionResult Upload()
         {
+            // toDo - cut thumbnail 
             foreach (string requestFileName in Request.Files)
             {
                 HttpPostedFileBase file = Request.Files[requestFileName];
 
                 if (file != null)
                 {
-                    string imageFullPath = UploadImageHandler.SaveImage(file);
-                    // save imagePath into DB
-                    string thumbnailFullPath = UploadImageHandler.CreateThumbnail(file, 100);
-                    // save thumbnailPath into DB 
+                    ApplicationImageInfo item = new ApplicationImageInfo();
+
+                    string imageRelativePath = UploadImageHandler.SaveImage(file);
+                    item.ImagePath = imageRelativePath;
+
+                    string thumbnailRelativePath = UploadImageHandler.CreateThumbnail(file, new Size(200, 100));
+                    item.ThumbnailPath = thumbnailRelativePath;
+
+                    db.Add(item);
                 }
                 else
                 {

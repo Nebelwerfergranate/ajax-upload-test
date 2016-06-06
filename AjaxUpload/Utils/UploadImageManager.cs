@@ -9,35 +9,43 @@ using System.Drawing.Drawing2D;
 
 namespace AjaxUpload.Utils
 {
-    public class UploadImageHandler
+    public class UploadImageManager
     {
 
         #region Fields
-        private string imagesDirectoryPath = string.Empty;
-        private string thumbnailsDirectoryPath = string.Empty;
+        private string virtualPath = string.Empty;
+        private string imagesDirRelativePath = string.Empty;
+        private string thumbnailsDirRelativePath = string.Empty;
         #endregion
 
         #region Constructors
-        public UploadImageHandler() { }
+        public UploadImageManager() { }
 
-        public UploadImageHandler(string imagesDirectoryPath, string thumbnailsDirectoryPath)
+        public UploadImageManager(string virtualPath, string imagesDirRelativePath, string thumbnailsDirRelativePath)
         {
-            ImagesDirectoryPath = imagesDirectoryPath;
-            ThumbnailsDirectoryPath = thumbnailsDirectoryPath;
+            VirtualPath = virtualPath;
+            ImagesDirRelativePath = imagesDirRelativePath;
+            ThumbnailsDirRelativePath = thumbnailsDirRelativePath;
         }
         #endregion
 
         #region Properties
-        public string ImagesDirectoryPath
+        public string VirtualPath
         {
-            get { return imagesDirectoryPath; }
-            set { imagesDirectoryPath = value; }
+            get { return virtualPath; }
+            set { virtualPath = value; }
         }
 
-        public string ThumbnailsDirectoryPath
+        public string ImagesDirRelativePath
         {
-            get { return thumbnailsDirectoryPath; }
-            set { thumbnailsDirectoryPath = value; }
+            get { return imagesDirRelativePath; }
+            set { imagesDirRelativePath = value; }
+        }
+
+        public string ThumbnailsDirRelativePath
+        {
+            get { return thumbnailsDirRelativePath; }
+            set { thumbnailsDirRelativePath = value; }
         }
         #endregion
 
@@ -48,17 +56,17 @@ namespace AjaxUpload.Utils
             string imageFullPath = GetImageFullPath(fileName);
             file.SaveAs(imageFullPath);
 
-            return imageFullPath;
+            return Path.Combine(imagesDirRelativePath, fileName);
         }
 
-        public string CreateThumbnail(HttpPostedFileBase file, int maxSize)
+        public string CreateThumbnail(HttpPostedFileBase file, Size size)
         {
             string fileName = Path.GetFileName(file.FileName);
             string imageFullPath = GetImageFullPath(fileName);
             string thumbnailFullPath = GetThumbnailFullPath(fileName);
 
             Image image = Image.FromFile(imageFullPath);
-            Size thumbnailSize = GetThumbNailSize(image, maxSize);
+            Size thumbnailSize = GetThumbNailSize(image, size);
 
             Rectangle imageRectangle = new Rectangle(0, 0, thumbnailSize.Width, thumbnailSize.Height);
             Bitmap thumbnailBitmap = new Bitmap(thumbnailSize.Width, thumbnailSize.Height);
@@ -75,38 +83,45 @@ namespace AjaxUpload.Utils
             thumbnailBitmap.Dispose();
             thumbnailGraph.Dispose();
 
-            return thumbnailFullPath;
+            return Path.Combine(thumbnailsDirRelativePath, fileName);
         }
         #endregion
 
         #region Private Methods
         private string GetImageFullPath(string fileName)
         {
-            if (String.IsNullOrEmpty(ImagesDirectoryPath))
+            if (String.IsNullOrEmpty(ImagesDirRelativePath))
             {
                 throw new ApplicationException("ImagesDirectoryPath isn't assigned");
             }
 
-            return Path.Combine(ImagesDirectoryPath, fileName);
+            if (String.IsNullOrEmpty(VirtualPath))
+            {
+                throw new ApplicationException("VirtualPath isn't assigned");
+            }
+
+            return Path.Combine(virtualPath, ImagesDirRelativePath, fileName);
         }
 
         private string GetThumbnailFullPath(string fileName)
         {
-            if (String.IsNullOrEmpty(ThumbnailsDirectoryPath))
+            if (String.IsNullOrEmpty(ThumbnailsDirRelativePath))
             {
                 throw new ApplicationException("ThumblailsDirectoryPath isn't assigned");
             }
 
-            return Path.Combine(ThumbnailsDirectoryPath, fileName);
+            if (String.IsNullOrEmpty(VirtualPath))
+            {
+                throw new ApplicationException("VirtualPath isn't assigned");
+            }
+
+            return Path.Combine(VirtualPath, ThumbnailsDirRelativePath, fileName);
         }
 
-        private Size GetThumbNailSize(Image image, int maxSize)
+        // todo - remake
+        private Size GetThumbNailSize(Image image, Size thumbnailSize)
         {
-            Size thumbnailSize = new Size();
-
             double ratio = (double)image.Size.Width / image.Size.Height;
-            thumbnailSize.Width = maxSize;
-            thumbnailSize.Height = maxSize;
 
             if (ratio > 1.0)
             {

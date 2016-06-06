@@ -1,0 +1,105 @@
+body{
+	margin:0; padding:0;
+	background-color: #666;
+}
+p{
+	margin: 0; padding: 0;
+}
+
+
+.steps{
+	position: fixed;
+	bottom: 0;
+	display: inline-block;
+	width: 100%; 
+	padding: 20px 0;
+	background-color: #555;
+	text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.container{
+	width: 900px;
+	margin:auto;
+}
+
+
+
+
+.drop_field{
+	display:none;
+	width: 100%;
+	color: #888; background-color: #333;
+	text-align: center;
+	margin-top:40px; padding: 20px 0;
+}
+
+
+
+
+
+
+.load_field{
+	display: none;
+	width: 100%;
+	color: #888; background-color: #333;
+	text-align: center;
+	margin-top:40px; padding: 20px 0;
+}
+.progress_bar{
+	width: 200px; height: 20px;
+	margin: auto;
+	background-color: #444;
+}
+.progerss{
+	width:10%; height: 20px;
+	background-color: blue;
+}
+
+
+
+
+
+.list_photo{
+	display: none;
+	overflow: hidden;
+	width: 100%;
+	color: #888; background-color: #333;
+	border-top: 1px solid #fff;
+	padding: 20px 0;
+}
+.list_photo img{
+	float: left;
+	width: 200px;
+	margin-left:20px;
+}
+
+
+
+
+.big_photo{
+	position:absolute;
+	top:0;
+	left: 0;
+	width: 100%; height: 100%;
+	color: #888; 
+	background-color: rgba(122, 119, 119, 0.8);
+
+	text-align: center;
+}
+.big_photo img{
+	margin-top:150px;
+}
+

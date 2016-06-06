@@ -1,27 +1,77 @@
-﻿
+﻿@using AjaxUpload.Utils
+@using System.Collections.Generic
+
+@model List<ApplicationImageInfo>
 @{
-    ViewBag.Title = "AdvancedTest";
+    ViewBag.Title = "Ajax Upload";
 }
 
 @section styles{
     <link rel="stylesheet" href="~/Content/advancedTest.css" />
+    <link rel="stylesheet" href="~/Content/main.css" />
 }
 
 <h2>ViewBag.Title</h2>
 
-<div>
-    <input type="file" name="upload" id="uploadFile" multiple /><br />
-    <button id="submit">Download</button>
-    <br />
-    <br />
-    <div id="dropbox"></div>
-    <progress id="progress" max="100" value="0">
-        loading...
-    </progress>
-    <div id="preview"></div>
+<div class="container">
+    @Model.Count;
+
+    <div id="js_drop_field" class="drop_field">
+        <p>add new photos</p>
+    </div>
+
+    <div id="js_list_photo" class="list_photo">
+        @foreach (ApplicationImageInfo item in Model)
+        {
+            <img src="@item.ThumbnailPath" alt="thumbnail" />
+        }
+    </div>
+
+    <div class="old">
+        <input type="file" name="upload" id="uploadFile" multiple /><br />
+        <button id="submit">Download</button>
+        <br />
+        <br />
+        <div id="dropbox"></div>
+        <progress id="progress" max="100" value="0">
+            loading...
+        </progress>
+        <div id="preview"></div>
+    </div>
+
+    @*<div id="js_load_field" class="load_field">
+            <div class="progress_bar">
+                <div class="progerss"></div>
+            </div>
+        </div>
+
+        <div id="js_big_photo" class="big_photo">
+            <img src="05.jpg">
+        </div>*@
 </div>
 
+
+
+
+
+
+@*<div class="steps">
+        <button id="step_1">1</button>
+        <button id="step_2">2</button>
+        <button id="step_3">3</button>
+        <button id="step_4">4</button>
+    </div>*@
+
+
+
+
+
+
+
+
 @section scripts{
+    @*<script src="~/Scripts/My/script.js"></script>*@
+
     <script>
         var dropbox = document.getElementById("dropbox");
         var preview = document.getElementById("preview");
