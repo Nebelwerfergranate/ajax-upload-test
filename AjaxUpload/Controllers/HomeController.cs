@@ -12,12 +12,13 @@ namespace AjaxUpload.Controllers
 {
     public class HomeController : Controller
     {
-        // Fields
+        #region Fields
         private string imagesDirectoryPath;
         private string thumbnailsDirectoryPath;
         private UploadImageHandler uploadImageHandler;
+        #endregion
 
-        // Properties
+        #region Properties
         private string ImagesDirectoryPath
         {
             get
@@ -48,7 +49,7 @@ namespace AjaxUpload.Controllers
         {
             get
             {
-                if(uploadImageHandler == null)
+                if (uploadImageHandler == null)
                 {
                     uploadImageHandler = new UploadImageHandler(ImagesDirectoryPath, ThumbnailsDirectoryPath);
                 }
@@ -56,26 +57,14 @@ namespace AjaxUpload.Controllers
                 return uploadImageHandler;
             }
         }
+        #endregion
 
-        #region
+        #region Primary Methods
         public ActionResult Index()
         {
             //return View();
-            return RedirectToAction("AdvancedTest");
+            return View("AdvancedTest");
         }
-
-        [HttpGet]
-        public ActionResult Test()
-        {
-            return View();
-        }
-
-        // here
-        public ActionResult AdvancedTest()
-        {
-            return View();
-        }
-        #endregion
 
         [HttpPost]
         public ActionResult Upload()
@@ -99,5 +88,20 @@ namespace AjaxUpload.Controllers
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
+        #endregion
+
+        #region Secondary Methods
+        [HttpGet]
+        public ActionResult Test()
+        {
+            return View();
+        }
+
+        // here
+        public ActionResult AdvancedTest()
+        {
+            return View();
+        }
+        #endregion
     }
 }

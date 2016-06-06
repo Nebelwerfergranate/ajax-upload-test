@@ -11,21 +11,23 @@ namespace AjaxUpload.Utils
 {
     public class UploadImageHandler
     {
-        // fields
-        string imagesDirectoryPath = string.Empty;
-        string thumbnailsDirectoryPath = string.Empty;
 
+        #region Fields
+        private string imagesDirectoryPath = string.Empty;
+        private string thumbnailsDirectoryPath = string.Empty;
+        #endregion
 
-        // constructors
+        #region Constructors
         public UploadImageHandler() { }
+
         public UploadImageHandler(string imagesDirectoryPath, string thumbnailsDirectoryPath)
         {
             ImagesDirectoryPath = imagesDirectoryPath;
             ThumbnailsDirectoryPath = thumbnailsDirectoryPath;
         }
+        #endregion
 
-
-        // properties
+        #region Properties
         public string ImagesDirectoryPath
         {
             get { return imagesDirectoryPath; }
@@ -37,9 +39,9 @@ namespace AjaxUpload.Utils
             get { return thumbnailsDirectoryPath; }
             set { thumbnailsDirectoryPath = value; }
         }
+        #endregion
 
-
-        //Methods
+        #region Public Methods
         public string SaveImage(HttpPostedFileBase file)
         {
             string fileName = Path.GetFileName(file.FileName);
@@ -69,20 +71,22 @@ namespace AjaxUpload.Utils
 
             thumbnailBitmap.Save(thumbnailFullPath);
 
-            image.Dispose();                       
+            image.Dispose();
             thumbnailBitmap.Dispose();
             thumbnailGraph.Dispose();
 
             return thumbnailFullPath;
         }
+        #endregion
 
+        #region Private Methods
         private string GetImageFullPath(string fileName)
         {
             if (String.IsNullOrEmpty(ImagesDirectoryPath))
             {
                 throw new ApplicationException("ImagesDirectoryPath isn't assigned");
             }
-    
+
             return Path.Combine(ImagesDirectoryPath, fileName);
         }
 
@@ -115,5 +119,6 @@ namespace AjaxUpload.Utils
 
             return thumbnailSize;
         }
+        #endregion
     }
 }
