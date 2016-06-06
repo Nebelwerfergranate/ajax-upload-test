@@ -46,7 +46,7 @@ namespace AjaxUpload.Controllers
             }
         }
 
-        private UploadImageManager UploadImageHandler
+        private UploadImageManager UploadManager
         {
             get
             {
@@ -63,14 +63,12 @@ namespace AjaxUpload.Controllers
         #region Primary Methods
         public ActionResult Index()
         {
-            //return View();
             return View("AdvancedTest", db);
         }
 
         [HttpPost]
         public ActionResult Upload()
         {
-            // toDo - cut thumbnail 
             foreach (string requestFileName in Request.Files)
             {
                 HttpPostedFileBase file = Request.Files[requestFileName];
@@ -79,10 +77,10 @@ namespace AjaxUpload.Controllers
                 {
                     ApplicationImageInfo item = new ApplicationImageInfo();
 
-                    string imageRelativePath = UploadImageHandler.SaveImage(file);
+                    string imageRelativePath = UploadManager.SaveImage(file);
                     item.ImagePath = imageRelativePath;
 
-                    string thumbnailRelativePath = UploadImageHandler.CreateThumbnail(file, new Size(200, 100));
+                    string thumbnailRelativePath = UploadManager.CreateThumbnail(file, new Size(200, 100), CutOptions.CropHeight);
                     item.ThumbnailPath = thumbnailRelativePath;
 
                     db.Add(item);

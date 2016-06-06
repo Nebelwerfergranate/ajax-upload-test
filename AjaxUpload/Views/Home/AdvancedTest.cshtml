@@ -85,7 +85,7 @@
         dropbox.addEventListener("dragover", dragover, false);
         dropbox.addEventListener("drop", drop, false);
 
-        button.onclick = addEventListener("click", click, false);
+        button.addEventListener("click", click, false);
 
         function dragenter(e) {
             e.stopPropagation();
@@ -104,9 +104,9 @@
             var dt = e.dataTransfer;
             var files = dt.files;
 
-            handleFiles(files);
-            allFiles = files;
-            //send(files);
+            //handleFiles(files);
+            //allFiles = files;
+            send(files);
         }
 
         function click(e) {
@@ -122,14 +122,14 @@
                     continue;
                 }
 
-                var img = document.createElement("img");
-                img.classList.add("obj");
-                img.file = file;
-                preview.appendChild(img); // Assuming that "preview" is the div output where the content will be displayed.
+                //var img = document.createElement("img");
+                //img.classList.add("obj");
+                //img.file = file;
+                //preview.appendChild(img); // Assuming that "preview" is the div output where the content will be displayed.
 
-                var reader = new FileReader();
-                reader.onload = (function (aImg) { return function (e) { aImg.src = e.target.result; }; })(img);
-                reader.readAsDataURL(file);
+                //var reader = new FileReader();
+                //reader.onload = (function (aImg) { return function (e) { aImg.src = e.target.result; }; })(img);
+                //reader.readAsDataURL(file);
             }
         }
 
@@ -153,6 +153,10 @@
                         }
 
                     }, false);
+
+                    xhr.upload.addEventListener("loadend", function () {
+                        location.reload();
+                    })
 
                 } else {
                     alert("Browser doesn't suppor HTML5 file loading!");

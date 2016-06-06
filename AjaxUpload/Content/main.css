@@ -6,6 +6,17 @@ p{
 	margin: 0; padding: 0;
 }
 
+.list_photo{
+	display: block;
+	overflow: hidden;
+	width: 100%;
+	color: #888; background-color: #333;
+	border-top: 1px solid #fff;
+	padding: 20px 0;
+}
+
+
+
 
 .steps{
 	position: fixed;
@@ -72,14 +83,7 @@ p{
 
 
 
-.list_photo{
-	display: none;
-	overflow: hidden;
-	width: 100%;
-	color: #888; background-color: #333;
-	border-top: 1px solid #fff;
-	padding: 20px 0;
-}
+
 .list_photo img{
 	float: left;
 	width: 200px;

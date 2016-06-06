@@ -257,6 +257,7 @@
     <Compile Include="Results\ChallengeResult.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utils\ApplicationImageInfo.cs" />
+    <Compile Include="Utils\CutOptions.cs" />
     <Compile Include="Utils\UploadImageManager.cs" />
   </ItemGroup>
   <ItemGroup>

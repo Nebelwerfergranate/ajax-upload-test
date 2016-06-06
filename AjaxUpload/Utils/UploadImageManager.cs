@@ -59,31 +59,24 @@ namespace AjaxUpload.Utils
             return Path.Combine(imagesDirRelativePath, fileName);
         }
 
-        public string CreateThumbnail(HttpPostedFileBase file, Size size)
+        public string CreateThumbnail(HttpPostedFileBase file, Size desiredSize, CutOptions cutOption = CutOptions.AllowTransform)
         {
             string fileName = Path.GetFileName(file.FileName);
-            string imageFullPath = GetImageFullPath(fileName);
-            string thumbnailFullPath = GetThumbnailFullPath(fileName);
+            string sourceImagePath = GetImageFullPath(fileName);
+            string thumbnailPath = GetThumbnailFullPath(fileName);
 
-            Image image = Image.FromFile(imageFullPath);
-            Size thumbnailSize = GetThumbNailSize(image, size);
+            using (Bitmap sourceImage = GetImageFromPath(sourceImagePath))
+            {
+                Size thumbnailSize = GetThumbnailSize(sourceImage, desiredSize, cutOption);
 
-            Rectangle imageRectangle = new Rectangle(0, 0, thumbnailSize.Width, thumbnailSize.Height);
-            Bitmap thumbnailBitmap = new Bitmap(thumbnailSize.Width, thumbnailSize.Height);
+                using (Bitmap thumbnail = GetCompressedImage(sourceImage, thumbnailSize))
+                using (Bitmap cropedImage = GetCropedImage(thumbnail, desiredSize, cutOption))
+                {
+                    cropedImage.Save(thumbnailPath);
+                }
+            }
 
-            Graphics thumbnailGraph = Graphics.FromImage(thumbnailBitmap);
-            thumbnailGraph.CompositingQuality = CompositingQuality.HighQuality;
-            thumbnailGraph.SmoothingMode = SmoothingMode.HighQuality;
-            thumbnailGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            thumbnailGraph.DrawImage(image, imageRectangle);
-
-            thumbnailBitmap.Save(thumbnailFullPath);
-
-            image.Dispose();
-            thumbnailBitmap.Dispose();
-            thumbnailGraph.Dispose();
-
-            return Path.Combine(thumbnailsDirRelativePath, fileName);
+            return Path.Combine(thumbnailsDirRelativePath, fileName);      
         }
         #endregion
 
@@ -118,21 +111,81 @@ namespace AjaxUpload.Utils
             return Path.Combine(VirtualPath, ThumbnailsDirRelativePath, fileName);
         }
 
-        // todo - remake
-        private Size GetThumbNailSize(Image image, Size thumbnailSize)
+        private Bitmap GetImageFromPath(string sourceImagePath)
         {
-            double ratio = (double)image.Size.Width / image.Size.Height;
+            Bitmap sourceImage = Image.FromFile(sourceImagePath) as Bitmap; // big image 
 
-            if (ratio > 1.0)
+            if (sourceImage == null)
             {
-                thumbnailSize.Height = (int)(100 / ratio);
-            }
-            else if (ratio < 1.0)
-            {
-                thumbnailSize.Width = (int)(100 * ratio);
+                throw new ApplicationException("source image isn't valid");
             }
 
-            return thumbnailSize;
+            return sourceImage;
+        }
+
+        private Size GetThumbnailSize(Image sourceImage, Size desiredSize, CutOptions cutOption)
+        {
+            Size size;
+            double compressionRate;
+            double ratio = (double)sourceImage.Width / sourceImage.Height;
+
+            switch (cutOption)
+            {
+                case CutOptions.AllowTransform:
+                    size = desiredSize;
+                    break;
+                case CutOptions.CropHeight:
+                    compressionRate = sourceImage.Width / desiredSize.Width;
+                    int height = Convert.ToInt32(sourceImage.Height / compressionRate);
+                    size = new Size(desiredSize.Width, height);
+                    break;
+                case CutOptions.CropWidth:
+                    compressionRate = sourceImage.Height / desiredSize.Height;
+                    int width = Convert.ToInt32(sourceImage.Width / compressionRate);
+                    size = new Size(width, desiredSize.Height);
+                    break;
+                default:
+                    string msg = string.Format("Cut option {0} is not supported", cutOption);
+                    throw new ArgumentException(msg);
+            }
+
+            return size;
+        }
+
+        private Bitmap GetCompressedImage(Image sourceImage, Size newSize)
+        {
+            Bitmap thumbnailBitmap = new Bitmap(sourceImage, newSize); // small image
+
+            using(Graphics thumbnailGraphics = Graphics.FromImage(thumbnailBitmap))
+            {
+                ConfigureGraphics(thumbnailGraphics);
+
+                // How much place drawing will take. Should be the same as the canvas to cover it all.
+                Rectangle drawingRectangle = new Rectangle(0, 0, newSize.Width, newSize.Height);
+                thumbnailGraphics.DrawImage(sourceImage, drawingRectangle);
+
+                return thumbnailBitmap;
+            }  
+        }
+
+        private void ConfigureGraphics(Graphics thumbnailGraphics)
+        {
+            thumbnailGraphics.Clear(Color.Transparent);
+            thumbnailGraphics.CompositingQuality = CompositingQuality.HighQuality;
+            thumbnailGraphics.SmoothingMode = SmoothingMode.HighQuality;
+            thumbnailGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        }
+
+        private Bitmap GetCropedImage(Bitmap thumbnail, Size desiredSize, CutOptions cutOption)
+        {
+            if (cutOption == CutOptions.AllowTransform)
+            {
+                return thumbnail;
+            }
+
+            Rectangle selection = new Rectangle(0, 0, desiredSize.Width, desiredSize.Height);
+
+            return thumbnail.Clone(selection, thumbnail.PixelFormat);
         }
         #endregion
     }
